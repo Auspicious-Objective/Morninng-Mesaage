@@ -15,7 +15,7 @@ All lines that will be needed to change are located at the top of the file bello
 
 - Name: the name that will be in the message
 - Token: your telagram bot token
-- Date: the date of your event
+- Date: the date of your event. **You will need to format the date as: Year-Month-Day all in numerical forum**
 - Event: name of your event example- wedding, graduation
 - Weather link: go to weather.com and get the link that cordinates to your city.
 - API key: get an API key from https://api-ninjas.com/
