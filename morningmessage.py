@@ -8,12 +8,12 @@ from threading import Thread
 
 name = ""
 token = ""
-weatherLink = "https://weather.com/"
-#Date should be organized as Year-Month-Day
+weatherLink = ""
+wordLink = ""
 Date = ""
 event = ""
 APIKey = ""
-chatID = 
+chatID = ""
 
 bot = telebot.TeleBot(token)
 
@@ -22,7 +22,26 @@ weatherFXpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "CurrentC
 weatherConditionsXpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "CurrentConditions--phraseValue--mZC_p", " " ))]'
 wordDayXpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "word-header-txt", " " ))]'
 
-links = [weatherLink, "https://www.merriam-webster.com/word-of-the-day"]
+def getWeather():
+    global weatherConditions
+    global temp
+    response = requests.get(weatherLink)
+    soup = BeautifulSoup(response.content, "html.parser")
+    body = soup.find("body")
+
+    parse = etree.HTML(str(body))
+
+    temp = parse.xpath(weatherFXpath)[0].text
+    weatherConditions = parse.xpath(weatherConditionsXpath)[0].text
+
+def getWordOfTheDay():
+    global wordOfTheDay
+    response = requests.get(wordLink)
+    soup = BeautifulSoup(response.content, "html.parser")
+    body = soup.find("body")
+
+    parse = etree.HTML(str(body))
+    wordOfTheDay = parse.xpath(wordDayXpath)[0].text
 
 def getQuote():
     global quoteAuthor
@@ -35,7 +54,6 @@ def getQuote():
     dict = jsonData[0]
     quote = dict["quote"]
     quoteAuthor = dict["author"]
-
 
 def dateDif():
     global dif
@@ -58,22 +76,12 @@ def log():
         file1.write(f"{todaysDateLog}]- Program has been ran successfully")
         file1.close()
 
-def main(links):
-    for links in links:
-        global weather
-        global wordOfTheDay
-        global weatherConditions
-        response = requests.get(links)
-        soup = BeautifulSoup(response.content, "html.parser")
-        body = soup.find("body")
+def main():
+    getWeatherThread = Thread(target=getWeather)
+    getWeatherThread.start()
 
-        parse = etree.HTML(str(body))
-
-        if links == weatherLink:
-            weather = parse.xpath(weatherFXpath)[0].text
-            weatherConditions = parse.xpath(weatherConditionsXpath)[0].text
-        else:
-            wordOfTheDay = parse.xpath(wordDayXpath)[0].text
+    getWordOfTheDayThread = Thread(target=getWordOfTheDay)
+    getWordOfTheDayThread.start()
 
     quoteThread = Thread(target=getQuote)
     quoteThread.start()
@@ -87,8 +95,10 @@ def main(links):
     quoteThread.join()
     todaysDateThread.join()
     dateDifThread.join()
+    getWeatherThread.join()
+    getWordOfTheDayThread.join()
 
-    message = f'Good morning {name} 👋. today is {todaysDate}. The weather for today is {weather} and {weatherConditions}. The word of the day is {wordOfTheDay}. {quoteAuthor} once said, "{quote}" There is {dif.days} days till {event}!'
+    message = f'Good morning {name} 👋. today is {todaysDate}. The weather for today is {temp} and {weatherConditions}. The word of the day is {wordOfTheDay}. {quoteAuthor} once said, "{quote}" There is {dif.days} days till {event}!'
 
     logThread = Thread(target=log)
     logThread.start()
@@ -96,4 +106,4 @@ def main(links):
     sendMessageThread = Thread(target=sendMessage(message))
     sendMessageThread.start()
 
-main(links=links)
+main()
