@@ -1,3 +1,5 @@
+# [Deprecated]
+Unfortantley due to some of the desighn choices I made the project ceases to work. Fortunatley I re-built the project so it should now be usable. You can acsess the new version at https://github.com/Auspicious-Objective/Wakeup-Message.git
 
 # Morninng-Mesaage
 A script that makes a morning message with the bare bones details you need in the morning.
